@@ -134,7 +134,6 @@ namespace BankManagementSystem.Controllers
                 Account toAccount = AccountInfo(toAccountId);
 
                 Transactions moneyTransaction = new Transactions();
-                TransactionInfo fromTransaction = new TransactionInfo();
 
                 if (fromAccount.amount < transferAmount || fromAccount.amount <= 0)
                 {
@@ -149,9 +148,17 @@ namespace BankManagementSystem.Controllers
                 moneyTransaction.amount_changed = transferAmount;
                 moneyTransaction.to_account_id = toAccount.account_id;
 
-
-
                 SContext.Add(moneyTransaction);
+                SContext.SaveChanges();
+
+                TransactionInfo toAccountInfo = TransactionDetailCreater(
+                    toAccount.account_id, moneyTransaction.transaction_id, toAccount.amount);
+                SContext.Add(toAccountInfo);
+
+                TransactionInfo fromAccountInfo = TransactionDetailCreater(
+                    fromAccount.account_id, moneyTransaction.transaction_id, fromAccount.amount);
+                SContext.Add(fromAccountInfo);
+
                 SContext.Update(fromAccount);
                 SContext.Update(toAccount);
                 SContext.SaveChanges();
@@ -162,9 +169,14 @@ namespace BankManagementSystem.Controllers
             return View("/Views/Home/BankAccountOverview.cshtml");
         }
 
-        private TransactionInfo TransactionDetailCreater()
+        private TransactionInfo TransactionDetailCreater(int accountId, int transactionId, float amountAfter)
         {
+
             TransactionInfo transactionItem = new TransactionInfo();
+            transactionItem.account_id = accountId;
+            transactionItem.transaction_id = transactionId;
+            transactionItem.amount_after = amountAfter;
+
             return transactionItem;
         }
 

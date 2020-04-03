@@ -10,6 +10,7 @@ namespace BankManagementData.Models.ModelConfigurations
     {
         public void Configure(EntityTypeBuilder<TransactionInfo> builder)
         {
+            builder.HasKey(prop => prop.transaction_count);
             builder.Property(prop => prop.transaction_id)
                 .IsRequired();
             builder.Property(prop => prop.account_id)
