@@ -9,6 +9,6 @@ namespace BankManagementData.Models
         public Passwords Passwords { get; set; }
         public User User { get; set; }
         public Account Account { get; set; }
-        public Transactions Transactions { get; set; }
+        public TransactionInfo TransactionInfo { get; set; }
     }
 }

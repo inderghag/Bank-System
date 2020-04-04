@@ -10,5 +10,8 @@ namespace BankManagementData.Models
         public int account_id { get; set; }
         public int transaction_id { get; set; }
         public float amount_after { get; set; }
+        public string transaction_name { get; set; }
+        public float amount_changed { get; set; }
+        public DateTime date { get; set; }
     }
 }

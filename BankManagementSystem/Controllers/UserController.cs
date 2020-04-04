@@ -94,8 +94,8 @@ namespace BankManagementSystem.Controllers
         [HttpGet]
         public IActionResult AccountDetails(int accountId)
         {
-            IEnumerable<Transactions> transactionsList = SContext.Transactions.Where(
-                prop => prop.from_account_id == accountId || prop.to_account_id == accountId);
+            IEnumerable<TransactionInfo> transactionsList = SContext.TransactionInfo.Where(
+                prop => prop.account_id == accountId);
             transactionsList = transactionsList.OrderByDescending(prop => prop.date.Date);
 
             return View("Views/Home/AccountDetails.cshtml", transactionsList);
@@ -133,7 +133,6 @@ namespace BankManagementSystem.Controllers
                 Account fromAccount = AccountInfo(fromAccountId);
                 Account toAccount = AccountInfo(toAccountId);
 
-                Transactions moneyTransaction = new Transactions();
 
                 if (fromAccount.amount < transferAmount || fromAccount.amount <= 0)
                 {
@@ -143,39 +142,42 @@ namespace BankManagementSystem.Controllers
                 fromAccount.amount -= transferAmount;
                 toAccount.amount += transferAmount;
 
-                moneyTransaction.from_account_id = fromAccount.account_id;
-                moneyTransaction.transaction_name = "Transfer";
-                moneyTransaction.amount_changed = transferAmount;
-                moneyTransaction.to_account_id = toAccount.account_id;
-
-                SContext.Add(moneyTransaction);
+                TransactionInfo fromAccountInfo = TransactionDetailCreater(
+                    fromAccount.account_id, transferAmount, fromAccount.amount, true);
+                SContext.Add(fromAccountInfo);
                 SContext.SaveChanges();
 
                 TransactionInfo toAccountInfo = TransactionDetailCreater(
-                    toAccount.account_id, moneyTransaction.transaction_id, toAccount.amount);
+                    toAccount.account_id, transferAmount, toAccount.amount, false);
+                toAccountInfo.transaction_id = fromAccountInfo.transaction_id;
                 SContext.Add(toAccountInfo);
-
-                TransactionInfo fromAccountInfo = TransactionDetailCreater(
-                    fromAccount.account_id, moneyTransaction.transaction_id, fromAccount.amount);
-                SContext.Add(fromAccountInfo);
 
                 SContext.Update(fromAccount);
                 SContext.Update(toAccount);
                 SContext.SaveChanges();
 
-                return View("/Views/Home/TransferMoneyConfirmation.cshtml", moneyTransaction);
+                return View("/Views/Home/TransferMoneyConfirmation.cshtml", fromAccountInfo);
             }
 
             return View("/Views/Home/BankAccountOverview.cshtml");
         }
 
-        private TransactionInfo TransactionDetailCreater(int accountId, int transactionId, float amountAfter)
+        private TransactionInfo TransactionDetailCreater(int accountId, float transferAmount, float amountAfter, Boolean fromAccount)
         {
+            string transferName = "Deposit";
+            if(fromAccount == true)
+            {
+                transferAmount *= -1;
+                transferName = "Withdrawl";
+            }
 
-            TransactionInfo transactionItem = new TransactionInfo();
-            transactionItem.account_id = accountId;
-            transactionItem.transaction_id = transactionId;
-            transactionItem.amount_after = amountAfter;
+            TransactionInfo transactionItem = new TransactionInfo
+            {
+                account_id = accountId,
+                amount_changed = transferAmount,
+                amount_after = amountAfter,
+                transaction_name = transferName
+            };
 
             return transactionItem;
         }
@@ -204,16 +206,20 @@ namespace BankManagementSystem.Controllers
 
         private HttpCookie CreateUserIdCookie(User user)
         {
-            HttpCookie userCookies = new HttpCookie();
-            userCookies.Value = String.Concat(user.client_id);
+            HttpCookie userCookies = new HttpCookie
+            {
+                Value = String.Concat(user.client_id)
+            };
 
             return userCookies;
         }
 
         private HttpCookie CreateUserNameCookie(User user)
         {
-            HttpCookie userCookies = new HttpCookie();
-            userCookies.Value = String.Concat(user.first_name + " " + user.last_name);
+            HttpCookie userCookies = new HttpCookie
+            {
+                Value = String.Concat(user.first_name + " " + user.last_name)
+            };
 
             return userCookies;
         }

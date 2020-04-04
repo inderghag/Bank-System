@@ -1,13 +1,33 @@
-﻿@model BankManagementData.Models.Transactions
+﻿@model BankManagementData.Models.TransactionInfo
 @{
     ViewData["Title"] = "TransferMoneyConfirmation";
     Layout = "~/Views/Shared/_AccountLayout.cshtml";
 }
+    <div class="jumbotron">
+        <div style="text-align: left; display:flex; flex-direction: column; align-items: center">
+            <h2 class="display-4">Transfer Money Confirmation</h2>
+            <h3>Transaction Successful</h3>
+            <table class="table table-hover">
+                <tr>
+                    <th scope="row">Amount</th>
+                    <td>$@Model.amount_changed</td>
+                </tr>
+                <tr>
+                    <th scope="row">From</th>
+                    <td>@Model.account_id</td>
+                </tr>
+                <tr>
+                    <th scope="row">Transaction Confirmation ID</th>
+                    <td>@Model.transaction_id</td>
+                </tr>
+                <tr>
+                    <th scope="row">Date and Time</th>
+                    <td>@Model.date</td>
+                </tr>
+            </table>
 
-<div>
-    <h1>Transfer Money Confirmation</h1>
-    <h3>Transaction Successful</h3>
-    
-
-
-</div>
+            <div>
+                <a asp-action="BankAccountOverview" asp-controller="User">Back to List</a>
+            </div>
+        </div>
+    </div>
